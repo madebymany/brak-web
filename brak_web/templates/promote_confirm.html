@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Promote a package?</h1>
+
+    <p class="package-promotion-details">
+        This will promote <mark>{{ promotion_req.package_name }}</mark> at version <mark>{{ promotion_req.version }}</mark> from <mark>{{ promotion_req.from_component }}</mark> to <mark>{{ promotion_req.to_component }}</mark> on <mark>{{ promotion_req.codename }}</mark> in repository <mark>{{ promotion_req.bucket }}</mark>.
+    </p>
+
+    <p> Are you sure?
+        <form method="post">
+            <input type="submit" class="btn btn-primary" value="Promote">
+        </form>
+    </p>
+{% endblock %}

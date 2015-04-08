@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Promotion Result</h1>
+
+    <p>
+        Promotion <span>{{ "succeeded" if success else "failed" }}</span>:
+    </p>
+
+    <pre>{{ command_output }}</pre>
+
+    <p>
+        <a href="{{ url_for('.index') }}" class="btn btn-default">Back to index</a>
+    </p>
+{% endblock %}

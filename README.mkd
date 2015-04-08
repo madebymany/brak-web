@@ -1,0 +1,13 @@
+# Brak Web Interface
+
+For promoting packages mainly at the moment.
+
+Install with `python setup.py install`
+
+Run with
+
+```
+BRAK_GOOGLE_ID=asdf BRAK_GOOGLE_SECRET=qwer brak-web
+```
+
+Auth details are in the "Brak Web" app in the MxM Google Developers Console. Whitelist is set up for `http://localhost:5000` and `https://brak.mxmdev.com`.

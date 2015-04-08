@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Please log in</h1>
+
+
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <a href="{{ url_for('.redirect_google_auth') }}">Sign in with Google</a>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+{% endblock %}

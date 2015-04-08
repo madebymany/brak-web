@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block content %}
+    <h1>Packages</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Version</th>
+                <th>Codename</th>
+                <th>Bucket</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in entries %}
+            <tr>
+                <td>{{ entry.name }}</td>
+                <td>{{ entry.latest_version }}</td>
+                <td>{{ entry.codename}} / {{ entry.component }}</td>
+                <td>{{ entry.bucket }}</td>
+                <td>
+                    {% if entry.can_promote %}
+                    <a class="btn btn-primary btn-xs"
+                        href="{{ entry.promotion_url }}">Promote</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
