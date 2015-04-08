@@ -17,6 +17,7 @@ setup(name='brak-web',
           'Flask-SQLAlchemy==1.0',
           'pg8000==1.10.2',
           'Flask-OAuthlib==0.9.1',
+          'jsonrpc2-zeromq==2.0.0',
       ],
       entry_points={
           'console_scripts': [
