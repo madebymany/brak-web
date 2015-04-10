@@ -13,6 +13,7 @@ from . import tansit
 
 
 app = Flask(__name__)
+app.config['PORT'] = 5000
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     "postgresql+pg8000://brak-web@/brak_dev"
 app.config['TANSIT_ENDPOINT'] = "ipc:///tmp/tansit.zmq"
@@ -199,4 +200,13 @@ def promote():
 
 
 def run():
-    return app.run()
+    import tornado.options
+    from tornado.wsgi import WSGIContainer
+    from tornado.httpserver import HTTPServer
+    from tornado.ioloop import IOLoop
+
+    tornado.options.parse_command_line()
+
+    http_server = HTTPServer(WSGIContainer(app))
+    http_server.listen(int(app.config['PORT']))
+    IOLoop.instance().start()
