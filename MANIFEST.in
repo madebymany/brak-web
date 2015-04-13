@@ -1,0 +1,2 @@
+graft brak_web/static
+graft brak_web/templates
