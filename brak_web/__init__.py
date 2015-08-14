@@ -20,6 +20,7 @@ app.config['PORT'] = 5000
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     "postgresql+pg8000://brak-web@/brak_dev"
 app.config['TANSIT_ENDPOINT'] = "ipc:///tmp/tansit.zmq"
+app.config['PREFERRED_URL_SCHEME'] = 'http'
 app.secret_key = os.urandom(128)  # maybe do this better sometime
 from_envvars(app.config, prefix="BRAK_")
 
@@ -154,7 +155,8 @@ def login():
 @app.route('/auth/google')
 def redirect_google_auth():
     return google_auth.authorize(
-        callback=url_for('.oauth2callback', _external=True))
+        callback=url_for('.oauth2callback', _external=True,
+                         _scheme=app.config['PREFERRED_URL_SCHEME']))
 
 
 @app.route('/logout')
