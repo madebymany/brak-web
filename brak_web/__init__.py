@@ -14,7 +14,7 @@ from . import tansit
 
 
 app = Flask(__name__)
-SSLify(app)
+SSLify(app, skips=['_health_check'])
 
 app.config['PORT'] = 5000
 app.config['SQLALCHEMY_DATABASE_URI'] = \
@@ -139,6 +139,11 @@ def authorized(f):
 @google_auth.tokengetter
 def get_google_oauth_token():
     return session.get('google_token')
+
+
+@app.route('/_health_check')
+def health_check():
+    return ("OK", 200, {"Content-Type": "text/plain"})
 
 
 @app.route('/login')
