@@ -19,6 +19,7 @@ setup(name='brak-web',
           'Flask-OAuthlib==0.9.1',
           'jsonrpc2-zeromq==2.0.1',
           'tornado==4.1',
+          'Flask-SSLify==0.1.5',
       ],
       entry_points={
           'console_scripts': [

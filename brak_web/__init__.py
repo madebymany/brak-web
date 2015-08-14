@@ -7,12 +7,15 @@ from flask import Flask, render_template, request, redirect, url_for, flash, \
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_appconfig.env import from_envvars
 from flask_oauthlib.client import OAuth
+from flask_sslify import SSLify
 from sqlalchemy.dialects import postgresql
 
 from . import tansit
 
 
 app = Flask(__name__)
+SSLify(app)
+
 app.config['PORT'] = 5000
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     "postgresql+pg8000://brak-web@/brak_dev"
