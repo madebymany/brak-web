@@ -1,6 +1,7 @@
 import os
 import re
 from functools import wraps
+import base64
 
 from flask import Flask, render_template, request, redirect, url_for, flash, \
     session
@@ -23,6 +24,9 @@ app.config['TANSIT_ENDPOINT'] = "ipc:///tmp/tansit.zmq"
 app.config['PREFERRED_URL_SCHEME'] = 'http'
 app.secret_key = os.urandom(128)  # maybe do this better sometime
 from_envvars(app.config, prefix="BRAK_")
+
+if app.config.get('SECRET_KEY_BASE64'):
+    app.secret_key = base64.b64decode(app.config['SECRET_KEY_BASE64'])
 
 db = SQLAlchemy(app)
 db_metadata = db.MetaData()
