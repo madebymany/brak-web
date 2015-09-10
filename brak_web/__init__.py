@@ -90,22 +90,22 @@ class PromotionRequest:
                  arch):
         self.package_name = package_name
         self.version = version
-        self.codename = codename
-        self.from_component = component
-        if self.from_component not in PROMOTION_PATHS:
+        self.from_codename = codename
+        self.component = component
+        if self.from_codename not in PROMOTION_PATHS:
             raise ValueError("Cannot promote from {}".
-                             format(self.from_component))
+                             format(self.from_codename))
         self.bucket = bucket
         self.arch = arch
 
     @property
-    def to_component(self):
-        return PROMOTION_PATHS[self.from_component]
+    def to_codename(self):
+        return PROMOTION_PATHS[self.from_codename]
 
     @property
     def url_args(self):
         return dict(name=self.package_name, version=self.version,
-                    codename=self.codename, component=self.from_component,
+                    codename=self.from_codename, component=self.component,
                     bucket=self.bucket, arch=self.arch)
 
 
