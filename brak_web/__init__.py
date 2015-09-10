@@ -15,15 +15,18 @@ from . import tansit
 
 
 app = Flask(__name__)
-SSLify(app, skips=['_health_check'])
 
 app.config['PORT'] = 5000
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     "postgresql+pg8000://brak-web@/brak_dev"
 app.config['TANSIT_ENDPOINT'] = "ipc:///tmp/tansit.zmq"
 app.config['PREFERRED_URL_SCHEME'] = 'http'
+app.config['HTTPS'] = True
 app.secret_key = os.urandom(128)  # maybe do this better sometime
 from_envvars(app.config, prefix="BRAK_")
+
+if app.config.get('HTTPS'):
+    SSLify(app, skips=['_health_check'])
 
 if app.config.get('SECRET_KEY_BASE64'):
     app.secret_key = base64.b64decode(app.config['SECRET_KEY_BASE64'])
