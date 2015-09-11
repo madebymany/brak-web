@@ -92,15 +92,17 @@ class PromotionRequest:
         self.version = version
         self.from_codename = codename
         self.component = component
-        if self.from_codename not in PROMOTION_PATHS:
+
+        m = re.match(r'(?P<prefix>\S+-)?(?P<env>\S+)$', self.from_codename)
+        if m and m.group('env') in PROMOTION_PATHS:
+            self.to_codename = (m.group('prefix') or '') + \
+                PROMOTION_PATHS[m.group('env')]
+        else:
             raise ValueError("Cannot promote from {}".
                              format(self.from_codename))
+
         self.bucket = bucket
         self.arch = arch
-
-    @property
-    def to_codename(self):
-        return PROMOTION_PATHS[self.from_codename]
 
     @property
     def url_args(self):
@@ -129,6 +131,11 @@ class Package(object):
     @property
     def promotion_url(self):
         return url_for('.promote', **self.promotion_req.url_args)
+
+    @property
+    def to_codename(self):
+        if self.can_promote:
+            return self.promotion_req.to_codename
 
     def __getattr__(self, attr):
         return getattr(self.row, attr)

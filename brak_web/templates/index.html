@@ -20,8 +20,8 @@
                 <td>{{ entry.bucket }}</td>
                 <td>
                     {% if entry.can_promote %}
-                    <a class="btn btn-primary btn-xs"
-                        href="{{ entry.promotion_url }}">Promote</a>
+                      <a class="btn btn-primary btn-xs"
+                        href="{{ entry.promotion_url }}">Promote to {{ entry.to_codename}}</a>
                     {% endif %}
                 </td>
             </tr>
