@@ -5,7 +5,7 @@ import base64
 
 from flask import Flask, render_template, request, redirect, url_for, flash, \
     session
-from flask.ext.sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from flask_appconfig.env import from_envvars
 from flask_oauthlib.client import OAuth
 from flask_sslify import SSLify
@@ -19,6 +19,7 @@ app = Flask(__name__)
 app.config['PORT'] = 5000
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     "postgresql+pg8000://brak-web@/brak_dev"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['TANSIT_ENDPOINT'] = "ipc:///tmp/tansit.zmq"
 app.config['PREFERRED_URL_SCHEME'] = 'http'
 app.config['HTTPS'] = True
