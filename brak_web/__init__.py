@@ -37,12 +37,14 @@ db_metadata = db.MetaData()
 
 newest_packages = db.Table(
     'newest_packages', db_metadata,
+    db.Column('id', db.Integer),
     db.Column('name', db.String),
     db.Column('latest_version', db.String),
-    db.Column('codename', db.String),
+    db.Column('codenames', postgresql.ARRAY(db.String)),
     db.Column('component', db.String),
     db.Column('bucket', db.String),
     db.Column('archs', postgresql.ARRAY(db.String)),
+    db.Column('promotable_to_codename', db.String),
 )
 
 oauth = OAuth(app)
@@ -71,6 +73,7 @@ class PromotionRequest:
                        component=request.args.get('component'),
                        bucket=request.args.get('bucket'),
                        arch=request.args.get('arch'),
+                       to_codename=request.args.get('to_codename'),
                        )
         except ValueError:
             return redirect(url_for('.index'))
@@ -80,25 +83,23 @@ class PromotionRequest:
         try:
             return cls(package_name=row.name,
                        version=row.latest_version,
-                       codename=row.codename,
+                       codename=row.codenames[-1],
                        component=row.component,
                        bucket=row.bucket,
-                       arch=row.archs[0])
+                       arch=row.archs[0],
+                       to_codename=row.promotable_to_codename)
         except ValueError:
             return None
 
     def __init__(self, package_name, version, codename, component, bucket,
-                 arch):
+                 arch, to_codename):
         self.package_name = package_name
         self.version = version
         self.from_codename = codename
         self.component = component
+        self.to_codename = to_codename
 
-        m = re.match(r'(?P<prefix>\S+-)?(?P<env>\S+)$', self.from_codename)
-        if m and m.group('env') in PROMOTION_PATHS:
-            self.to_codename = (m.group('prefix') or '') + \
-                PROMOTION_PATHS[m.group('env')]
-        else:
+        if not self.to_codename:
             raise ValueError("Cannot promote from {}".
                              format(self.from_codename))
 
@@ -109,14 +110,12 @@ class PromotionRequest:
     def url_args(self):
         return dict(name=self.package_name, version=self.version,
                     codename=self.from_codename, component=self.component,
-                    bucket=self.bucket, arch=self.arch)
+                    bucket=self.bucket, arch=self.arch,
+                    to_codename=self.to_codename)
 
-
-PROMOTION_PATHS = {
-    'unstable': 'stable',
-    'qa': 'staging',
-    'staging': 'production',
-}
+    @property
+    def url(self):
+        return url_for('.promote_confim', **self.url_args)
 
 
 class Package(object):
@@ -131,7 +130,11 @@ class Package(object):
 
     @property
     def promotion_url(self):
-        return url_for('.promote', **self.promotion_req.url_args)
+        return self.promotion_req.url
+
+    @property
+    def from_codename(self):
+        return self.row.codenames[-1]
 
     @property
     def to_codename(self):
@@ -206,22 +209,34 @@ def index():
                  db.session.execute(db.select([newest_packages]))))
 
 
-@app.route('/promote', methods=['GET', 'POST'])
-@authorized
-def promote():
-    promotion_req = PromotionRequest.from_request_or_redirect(request)
-    if not isinstance(promotion_req, PromotionRequest):
-        flash("Invalid promotion request", "danger")
-        return promotion_req
+def promote_prepare(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        promotion_req = PromotionRequest.from_request_or_redirect(request)
+        if isinstance(promotion_req, PromotionRequest):
+            return f(promotion_req)
+        else:
+            flash("Invalid promotion request", "danger")
+            return promotion_req
+    return wrapper
 
-    if request.method == 'POST':
-        success, msg = tansit.promote(app.config['TANSIT_ENDPOINT'],
-                                      promotion_req)
-        return render_template('promote_done.html', success=success,
-                               command_output=msg)
-    else:
-        return render_template('promote_confirm.html',
-                               promotion_req=promotion_req)
+
+@app.route('/promote', methods=['GET'])
+@authorized
+@promote_prepare
+def promote_confim(promotion_req):
+    return render_template('promote_confirm.html',
+                           promotion_req=promotion_req)
+
+
+@app.route('/promote', methods=['POST'])
+@authorized
+@promote_prepare
+def do_promote(promotion_req):
+    success, msg = tansit.promote(app.config['TANSIT_ENDPOINT'],
+                                  promotion_req)
+    return render_template('promote_done.html', success=success,
+                           command_output=msg)
 
 
 def run():
